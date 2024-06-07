@@ -32,7 +32,9 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
                 cookies_jar: std::sync::Arc::new(reqwest_cookie_store::CookieStoreMutex::new(
                     reqwest_cookie_store::CookieStore::load_json(
                         std::fs::File::open(
-                            PathResolver::app_data_dir().unwrap().join("cookies.json"),
+                            PathResolver::app_data_dir(&self)
+                                .unwrap()
+                                .join("cookies.json"),
                         )
                         .map(std::io::BufReader::new)
                         .unwrap(),
