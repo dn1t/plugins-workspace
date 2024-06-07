@@ -30,21 +30,16 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::<R>::new("http")
         .setup(|app, _| {
             let cookiesPath = app.path().app_data_dir().unwrap().join("cookies.json");
+            if !cookiesPath.exists() {
+                std::fs::File::create(&cookiesPath).unwrap().write(b"{}");
+            }
             let state = Http {
                 #[cfg(feature = "cookies")]
                 cookies_jar: std::sync::Arc::new(reqwest_cookie_store::CookieStoreMutex::new(
                     reqwest_cookie_store::CookieStore::load_json(
-                        {
-                            if cookiesPath.exists() {
-                                std::fs::File::open(cookiesPath).unwrap()
-                            } else {
-                                let tmp = std::fs::File::create(&cookiesPath).unwrap();
-                                tmp.write(b"{}");
-                                tmp
-                            }
-                        }
-                        .map(std::io::BufReader::new)
-                        .unwrap(),
+                        std::fs::File::open(cookiesPath)
+                            .map(std::io::BufReader::new)
+                            .unwrap(),
                     )
                     .unwrap(),
                 )),
