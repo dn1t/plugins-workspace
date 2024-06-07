@@ -29,7 +29,11 @@ pub(crate) struct Http {
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::<R>::new("http")
         .setup(|app, _| {
-            let cookiesPath = app.path().app_data_dir().unwrap().join("cookies.json");
+            let appDataDir = app.path().app_data_dir().unwrap();
+            if !appDataDir.exists() {
+              std::fs::create_dir_all(path);
+            }
+            let cookiesPath.join("cookies.json");
             if !cookiesPath.exists() {
                 std::fs::File::create(&cookiesPath).unwrap().write(b"{}");
             }
