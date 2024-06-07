@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-License-Identifier: MIT
 
+use std::io::Write;
 use std::{collections::HashMap, future::Future, pin::Pin, sync::Arc, time::Duration};
 
 use http::{header, HeaderName, Method, StatusCode};
