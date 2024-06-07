@@ -42,10 +42,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
                         Ok(reader) => {
                             CookieStoreMutex::new(CookieStore::load_json(reader).unwrap())
                         }
-                        Err(e) if e.kind() == IoErrorKind::NotFound => {
-                            CookieStoreMutex::new(ReqwestCookieStore::default())
-                        }
-                        Err(e) => Err(e.into()),
+                        Err(e) => CookieStoreMutex::new(ReqwestCookieStore::default()),
                     },
                 ),
             };
