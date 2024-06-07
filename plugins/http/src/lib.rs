@@ -6,7 +6,10 @@
 //!
 //! Access the HTTP client written in Rust.
 
-use std::{io::Write, path};
+use std::{
+    io::Write,
+    path::{self, PathBuf},
+};
 
 pub use reqwest;
 use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
@@ -25,15 +28,22 @@ mod scope;
 pub(crate) struct Http {
     #[cfg(feature = "cookies")]
     cookies_jar: std::sync::Arc<reqwest_cookie_store::CookieStoreMutex>,
+    #[cfg(feature = "cookies")]
+    path: PathBuf,
 }
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::<R>::new("http")
         .setup(|app, _| {
-            let appDataDir = app.path().app_data_dir().unwrap();
-            if !appDataDir.exists() {
-                std::fs::create_dir_all(appDataDir.clone());
-            }
+            #[cfg(feature = "cookies")]
+            let appDataDir = {
+                let tmp = app.path().app_data_dir().unwrap();
+                if !appDataDir.exists() {
+                    std::fs::create_dir_all(appDataDir.clone());
+                }
+                tmp
+            };
+            #[cfg(feature = "cookies")]
             let cookiesPath = appDataDir.join("cookies.json");
             let state = Http {
                 #[cfg(feature = "cookies")]
@@ -45,6 +55,8 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
                         Err(e) => CookieStoreMutex::new(CookieStore::default()),
                     },
                 ),
+                #[cfg(feature = "cookies")]
+                path: cookiesPath,
             };
 
             app.manage(state);
