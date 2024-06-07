@@ -139,7 +139,7 @@ fn attach_proxy(
 fn save_json<W, E, F>(store: &reqwest_cookie_store::CookieStore, writer: &mut W) -> Result<()>
 where
     W: Write,
-    F: Fn(&Cookie<'static>) -> Result<String, E>,
+    F: Fn(&reqwest::cookie::Cookie<'static>) -> Result<String, E>,
     crate::Error: From<E>,
 {
     for cookie in store.iter_unexpired().map(|c| ::serde_json::to_string(c)) {
