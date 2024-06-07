@@ -34,7 +34,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             if !appDataDir.exists() {
                 std::fs::create_dir_all(appDataDir.clone());
             }
-            let cookiesPath = dbg!(appDataDir.join("cookies.json"));
+            let cookiesPath = appDataDir.join("cookies.json");
             let state = Http {
                 #[cfg(feature = "cookies")]
                 cookies_jar: std::sync::Arc::new(

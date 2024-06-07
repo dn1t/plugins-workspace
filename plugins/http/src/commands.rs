@@ -200,11 +200,20 @@ pub async fn fetch<R: Runtime>(
 
                 #[cfg(feature = "cookies")]
                 {
-                    println!("after {}", url);
-                    let store = state.cookies_jar.lock().unwrap();
-                    for c in store.iter_any() {
-                        println!("{:?}", c);
+                    let appDataDir = app.path().app_data_dir().unwrap();
+                    if !appDataDir.exists() {
+                        std::fs::create_dir_all(appDataDir.clone());
                     }
+                    let cookiesPath = appDataDir.join("cookies.json");
+                    let mut writer = std::fs::File::create(&cookiesPath)
+                        .map(std::io::BufWriter::new)
+                        .unwrap();
+                    state
+                        .cookies_jar
+                        .lock()
+                        .unwrap()
+                        .save_json(&mut writer)
+                        .unwrap();
                 }
 
                 for (name, value) in &headers {
