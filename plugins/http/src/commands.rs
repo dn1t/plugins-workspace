@@ -203,6 +203,7 @@ pub async fn fetch<R: Runtime>(
                     let mut writer = std::fs::File::create(&state.path)
                         .map(std::io::BufWriter::new)
                         .unwrap();
+                    dbg!(state.cookies_jar);
                     state
                         .cookies_jar
                         .lock()
