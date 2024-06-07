@@ -39,7 +39,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             let appDataDir = {
                 let tmp = app.path().app_data_dir().unwrap();
                 if !appDataDir.exists() {
-                    std::fs::create_dir_all(appDataDir.clone());
+                    std::fs::create_dir_all(tmp.clone());
                 }
                 tmp
             };
