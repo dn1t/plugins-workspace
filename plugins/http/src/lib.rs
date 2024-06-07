@@ -9,6 +9,7 @@
 use std::{io::Write, path};
 
 pub use reqwest;
+use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
 use tauri::{
     path::PathResolver,
     plugin::{Builder, TauriPlugin},
@@ -34,19 +35,19 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
                 std::fs::create_dir_all(appDataDir.clone());
             }
             let cookiesPath = dbg!(appDataDir.join("cookies.json"));
-            if !cookiesPath.exists() {
-                std::fs::File::create(&cookiesPath).unwrap().write(b"[]");
-            }
             let state = Http {
                 #[cfg(feature = "cookies")]
-                cookies_jar: std::sync::Arc::new(reqwest_cookie_store::CookieStoreMutex::new(
-                    reqwest_cookie_store::CookieStore::load_json(
-                        std::fs::File::open(cookiesPath)
-                            .map(std::io::BufReader::new)
-                            .unwrap(),
-                    )
-                    .unwrap(),
-                )),
+                cookies_jar: std::sync::Arc::new(
+                    match std::fs::File::open(&cookiesPath).map(std::io::BufReader::new) {
+                        Ok(reader) => {
+                            CookieStoreMutex::new(CookieStore::load_json(reader).unwrap())
+                        }
+                        Err(e) if e.kind() == IoErrorKind::NotFound => {
+                            CookieStoreMutex::new(ReqwestCookieStore::default())
+                        }
+                        Err(e) => Err(e.into()),
+                    },
+                ),
             };
 
             app.manage(state);
