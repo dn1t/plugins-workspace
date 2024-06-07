@@ -40,7 +40,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
                             } else {
                                 let tmp = std::fs::File::create(&cookiesPath)
                                 std::fs::File::write(&tmp, b"{}");
-                                tmp
+                                tmp.unwrap()
                             }
                         }
                         .map(std::io::BufReader::new)
