@@ -42,7 +42,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
                         Ok(reader) => {
                             CookieStoreMutex::new(CookieStore::load_json(reader).unwrap())
                         }
-                        Err(e) => CookieStoreMutex::new(ReqwestCookieStore::default()),
+                        Err(e) => CookieStoreMutex::new(CookieStore::default()),
                     },
                 ),
             };
