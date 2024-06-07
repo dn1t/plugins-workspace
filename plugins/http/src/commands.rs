@@ -136,7 +136,7 @@ fn attach_proxy(
 }
 
 #[cfg(feature = "cookies")]
-fn save_json<W, E, F>(store: &reqwest_cookie_store::CookieStore, writer: &mut W) -> StoreResult<()>
+fn save_json<W, E, F>(store: &reqwest_cookie_store::CookieStore, writer: &mut W) -> Result<(), ()>
 where
     W: Write,
     F: Fn(&Cookie<'static>) -> Result<String, E>,
