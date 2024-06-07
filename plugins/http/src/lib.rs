@@ -6,7 +6,7 @@
 //!
 //! Access the HTTP client written in Rust.
 
-use std::path;
+use std::{io::Write, path};
 
 pub use reqwest;
 use tauri::{
@@ -30,16 +30,21 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::<R>::new("http")
         .setup(|app, _| {
             let cookiesPath = app.path().app_data_dir().unwrap().join("cookies.json");
-            if !cookiesPath.exists() {
-                std::fs::File::create(&cookiesPath);
-            }
             let state = Http {
                 #[cfg(feature = "cookies")]
                 cookies_jar: std::sync::Arc::new(reqwest_cookie_store::CookieStoreMutex::new(
                     reqwest_cookie_store::CookieStore::load_json(
-                        std::fs::File::open(cookiesPath)
-                            .map(std::io::BufReader::new)
-                            .unwrap(),
+                        {
+                            if cookiesPath.exists() {
+                                std::fs::File::open(cookiesPath).unwrap()
+                            } else {
+                                let tmp = std::fs::File::create(&cookiesPath)
+                                std::fs::File::write(&tmp, b"{}");
+                                tmp
+                            }
+                        }
+                        .map(std::io::BufReader::new)
+                        .unwrap(),
                     )
                     .unwrap(),
                 )),
