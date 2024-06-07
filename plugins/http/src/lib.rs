@@ -8,6 +8,7 @@
 
 pub use reqwest;
 use tauri::{
+    path::PathResolver,
     plugin::{Builder, TauriPlugin},
     Manager, Runtime,
 };
@@ -20,7 +21,7 @@ mod scope;
 
 pub(crate) struct Http {
     #[cfg(feature = "cookies")]
-    cookies_jar: std::sync::Arc<reqwest::cookie::Jar>,
+    cookies_jar: std::sync::Arc<reqwest_cookie_store::CookieStoreMutex>,
 }
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
@@ -28,7 +29,16 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
         .setup(|app, _| {
             let state = Http {
                 #[cfg(feature = "cookies")]
-                cookies_jar: std::sync::Arc::new(reqwest::cookie::Jar::default()),
+                cookies_jar: std::sync::Arc::new(reqwest_cookie_store::CookieStoreMutex::new(
+                    reqwest_cookie_store::CookieStore::load_json(
+                        std::fs::File::open(
+                            PathResolver::app_data_dir().unwrap().join("cookies.json"),
+                        )
+                        .map(std::io::BufReader::new)
+                        .unwrap(),
+                    )
+                    .unwrap(),
+                )),
             };
 
             app.manage(state);

@@ -196,7 +196,16 @@ pub async fn fetch<R: Runtime>(
                     builder = builder.cookie_provider(state.cookies_jar.clone());
                 }
 
-                let mut request = builder.build()?.request(method.clone(), url);
+                let mut request = builder.build()?.request(method.clone(), url.clone());
+
+                #[cfg(feature = "cookies")]
+                {
+                    println!("after {}", url);
+                    let store = state.cookies_jar.lock().unwrap();
+                    for c in store.iter_any() {
+                        println!("{:?}", c);
+                    }
+                }
 
                 for (name, value) in &headers {
                     let name = HeaderName::from_bytes(name.as_bytes())?;
