@@ -33,7 +33,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             if !appDataDir.exists() {
                 std::fs::create_dir_all(appDataDir.clone());
             }
-            let cookiesPath = appDataDir.join("cookies.json");
+            let cookiesPath = dbg!(appDataDir.join("cookies.json"));
             // if !cookiesPath.exists() {
             //     std::fs::File::create(&cookiesPath).unwrap().write(b"{}");
             // }
