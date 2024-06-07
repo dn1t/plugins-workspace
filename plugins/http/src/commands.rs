@@ -135,19 +135,6 @@ fn attach_proxy(
     Ok(builder)
 }
 
-#[cfg(feature = "cookies")]
-fn save_json<W, E, F>(store: &reqwest_cookie_store::CookieStore, writer: &mut W) -> Result<()>
-where
-    W: std::io::BufWriter,
-    F: Fn(&reqwest::cookie::Cookie<'static>) -> Result<String, E>,
-    crate::Error: From<E>,
-{
-    for cookie in store.iter_unexpired().map(|c| ::serde_json::to_string(c)) {
-        writeln!(writer, "{}", cookie?)?;
-    }
-    Ok(())
-}
-
 #[command]
 pub async fn fetch<R: Runtime>(
     webview: Webview<R>,
@@ -216,7 +203,16 @@ pub async fn fetch<R: Runtime>(
                     let mut writer = std::fs::File::create(&state.path)
                         .map(std::io::BufWriter::new)
                         .unwrap();
-                    save_json(state.cookies_jar.lock().unwrap(), &mut writer);
+
+                    for cookie in state
+                        .cookies_jar
+                        .lock()
+                        .unwrap()
+                        .iter_unexpired()
+                        .map(|c| ::serde_json::to_string(c))
+                    {
+                        writeln!(writer, "{}", cookie?)?;
+                    }
                 }
 
                 for (name, value) in &headers {
