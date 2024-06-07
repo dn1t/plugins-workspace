@@ -31,7 +31,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
         .setup(|app, _| {
             let appDataDir = app.path().app_data_dir().unwrap();
             if !appDataDir.exists() {
-                std::fs::create_dir_all(path);
+                std::fs::create_dir_all(appDataDir);
             }
             let cookiesPath = appDataDir.join("cookies.json");
             if !cookiesPath.exists() {
