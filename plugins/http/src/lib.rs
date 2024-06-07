@@ -34,9 +34,9 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
                 std::fs::create_dir_all(appDataDir.clone());
             }
             let cookiesPath = appDataDir.join("cookies.json");
-            if !cookiesPath.exists() {
-                std::fs::File::create(&cookiesPath).unwrap().write(b"{}");
-            }
+            // if !cookiesPath.exists() {
+            //     std::fs::File::create(&cookiesPath).unwrap().write(b"{}");
+            // }
             let state = Http {
                 #[cfg(feature = "cookies")]
                 cookies_jar: std::sync::Arc::new(reqwest_cookie_store::CookieStoreMutex::new(
