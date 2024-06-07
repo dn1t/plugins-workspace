@@ -211,7 +211,7 @@ pub async fn fetch<R: Runtime>(
                         .iter_unexpired()
                         .map(|c| ::serde_json::to_string(c))
                     {
-                        writeln!(writer, "{}", cookie?)?;
+                        writeln!(&mut writer, "{}", cookie?)?;
                     }
                 }
 
