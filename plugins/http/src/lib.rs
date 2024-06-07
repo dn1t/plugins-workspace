@@ -38,7 +38,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             #[cfg(feature = "cookies")]
             let appDataDir = {
                 let tmp = app.path().app_data_dir().unwrap();
-                if !appDataDir.exists() {
+                if !tmp.exists() {
                     std::fs::create_dir_all(tmp.clone());
                 }
                 tmp
